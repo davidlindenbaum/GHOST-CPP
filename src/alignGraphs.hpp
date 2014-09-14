@@ -114,6 +114,7 @@ void printICS(Graph& G, Graph& H, bmap& result)
 
   double ec = ((double)matchingEdges / edgesG) * 100.0;
   double ics = ((double)matchingEdges / edgesH) * 100.0;
+  cout << result.size() << " nodes aligned\n";
   cout << "Edge correctness " << matchingEdges/2 << " / " << edgesG/2 << " = " << ec << "\%\n";
   cout << "ICS = " << ics << "\%\n";
 }

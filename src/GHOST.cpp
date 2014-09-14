@@ -151,8 +151,42 @@ void computeAlignment(ConfigData c)
     dist = getDistancesFromFile(c.DistFile, c.alpha, c.beta, evals);
 
   // align graphs
-  bmap f = alignGraphs(G, H, dist, c.nneighbors, c.seedSkip);
+  cout << "\n";
+  bmap f = alignGraphs(G, H, dist, c.nneighbors, 0);
+  cout << "\n";
   localImprove(G, H, evals, &f, c.searchiter, c.ratio, c.numProcessors);
+  printICS(G,H,f);
+  //do confidence iterations
+  typedef boost::unordered_map<string, int> umap;
+  if(c.confidenceiters > 0)
+  {
+    cout << "\nrunning confidence iterations: ";
+    umap scores;
+    for(int i = 0; i < c.confidenceiters; i++){
+      bmap f2 = alignGraphs(G, H, dist, c.nneighbors, .8);
+      localImprove(G, H, evals, &f2, c.searchiter, c.ratio, c.numProcessors);
+
+      for(auto it = f2.left.begin(); it != f2.left.end(); it++){
+        auto existing = f.left.find(it->first);
+        if(existing != f.left.end() && existing->second == it->second){
+          if(scores.find(it->first) == scores.end()) scores.insert(umap::value_type(it->first, 1));
+          else scores.insert(umap::value_type(it->first, scores.find(it->first)->second + 1));
+        }else if(existing == f.left.end() && f.right.find(it->second) == f.right.end()){
+          f.insert(bmap::value_type(it->first, it->second));
+        }
+      }
+    }
+
+    bmap f2;
+    for(auto it = f.left.begin(); it != f.left.end(); it++){
+      if(c.confidencethreshold <= 1 || (scores.find(it->first) != scores.end() && 
+            scores.find(it->first)->second >= c.confidencethreshold - 1))
+              f2.insert(bmap::value_type(it->first, it->second));
+    }
+    f = f2;
+  }
+
+  cout << "\n";
   printICS(G, H, f);
   delete evals;
   printMap(f, G.getName(), H.getName());

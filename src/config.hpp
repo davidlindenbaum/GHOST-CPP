@@ -13,11 +13,12 @@ struct ConfigData
   int numProcessors=-1,
       hops=3,
       nneighbors=-1,
-      searchiter = 10;
+      searchiter = 10,
+      confidenceiters = 0,
+      confidencethreshold = 2;
   double alpha=-1.0,
          beta=1.0,
-         ratio=8.0,
-         seedSkip=0;
+         ratio=8.0;
   bool dumpSignatures=false,
        dumpDistances=false,
        alternateDistances=false,
@@ -33,11 +34,11 @@ void ConfigData::use(string s)
   string pos[] = {"network1: ", "network2: ", "sigs1: ", "sigs2: ",
                   "sequencescores: ", "nneighbors: ", "searchiter: ",
                   "hops: ", "processors: ", "alpha: ", "beta: ", "ratio: ", 
-                  "seedSkip: ", "dumpSignatures: ", "dumpDistances: ", 
-                  "directed: ", "alternateDistances: ", "alignFile: ", 
-                  "distFile: ", "sigApprox: "};
+                  "dumpSignatures: ", "dumpDistances: ", "directed: ", 
+                  "alternateDistances: ", "alignFile: ", "distFile: ", 
+                  "sigApprox: ", "confidenceIters: ", "confidenceThreshold: "};
   bool used=false;
-  for(int i=0;i<20;i++)
+  for(int i=0;i<21;i++)
     if(s.size() > pos[i].size() && s.substr(0,pos[i].size()) == pos[i])
     {
       s = s.substr(pos[i].size());
@@ -57,14 +58,15 @@ void ConfigData::use(string s)
         case 9: alpha = atof(s.c_str()); break;
         case 10: beta = atof(s.c_str()); break;
         case 11: ratio = atof(s.c_str()); break;
-        case 12: seedSkip = atof(s.c_str()); break;
-        case 13: if(s=="true") dumpSignatures=true; break;
-        case 14: if(s=="true") dumpDistances=true; break;
-        case 15: if(s=="true") directed=true; break;
-        case 16: if(s=="true") alternateDistances=true; break;
-        case 17: AlignFile = s; break;
-        case 18: DistFile = s; break;
-        case 19: SigApprox = s; break;
+        case 12: if(s=="true") dumpSignatures=true; break;
+        case 13: if(s=="true") dumpDistances=true; break;
+        case 14: if(s=="true") directed=true; break;
+        case 15: if(s=="true") alternateDistances=true; break;
+        case 16: AlignFile = s; break;
+        case 17: DistFile = s; break;
+        case 18: SigApprox = s; break;
+        case 19: confidenceiters = atoi(s.c_str()); break;
+        case 20: confidencethreshold = atoi(s.c_str()); break;
         default: break;
       }
     }
